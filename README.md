@@ -184,8 +184,15 @@ helm install ingress-ngnix /k8s/helm-charts/ingress/
 
 ```
 This installs a helm release called ingress-nginx
+The installed ingress resources points sock-shop front-end service to the provisioned load balancer as can be seen when I run...
+ ```
+kubectl describe Ingress sockshop-ingress
 
-3. 
+```
+![kubctl decribe ibgress](./screenshots/kubectl_describe_ingress.png)
+
+3. Route 53 A Records for domain name ties to socks-shop 
+AFte
 
 git clone https://github.com/microservices-demo/microservices-demo
 cd microservices-demo
