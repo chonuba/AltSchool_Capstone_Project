@@ -184,16 +184,33 @@ helm install ingress-ngnix /k8s/helm-charts/ingress/
 
 ```
 This installs a helm release called ingress-nginx
-The installed ingress resources points sock-shop front-end service to the provisioned load balancer as can be seen when I run...
+The installed ingress resources points sock-shop front-end service to the provisioned load balancer as can be seen when I run. The ingress address in the below screenshot is the same as the load balancer and it serves our front-end if no custom domain is available. But since I have a custom domain, I proceeded to using AWS route 53 service next.
  ```
 kubectl describe Ingress sockshop-ingress
 
 ```
 ![kubctl decribe ibgress](./screenshots/kubectl_describe_ingress.png)
 
-3. Route 53 A Records for domain name ties to socks-shop 
-AFte
+3. Route 53 Hosted Zones for Custom Domain
+With the ingress tying the front-end service to the load balance with a public address, next is to use AWS Route 53 hosted zone to create A-Record that would point my custom domain (oldyungdev.tech) to load balancer. This was achieved by using my domain name to create a hosted zone, then have the A-record setting point to the load balancer (using sockshop subdomain) in my region using simple routing protocol.
 
+![Route53 hosted zones](./screenshots/Route53_hosted_zone.png)
+
+4. Serving the Front-End on browser
+After Route 53 configurations, sockshop.oldyungdev.tech successfully served the front-end, but on the 80 (http) insecure port. 
+![frontend_not_secure](./screenshots/frontend_not_secure.png)
+
+#### 2.2 TLS Certificate with Helm
+1. Add jetstack helm chart from remote repo
+```
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+```
+
+2. Install cert-manager from jetstack helm chart, in the cert-manager namespace.
+```
+helm install cert-manager jetstack/cert-manager --namespace  --create-namespace
+```
 git clone https://github.com/microservices-demo/microservices-demo
 cd microservices-demo
 ```
