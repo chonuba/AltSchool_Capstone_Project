@@ -14,7 +14,7 @@ module "eks" {
   # EKS Managed Node Group(s)
   eks_managed_node_group_defaults = {
     ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["t3.micro"]
+      instance_types = ["t3.medium"]
 
   }
 
@@ -25,17 +25,17 @@ module "eks" {
       # ami_type       = "AL2023_x86_64_STANDARD"
       # instance_types = ["t3.micro"]
 
-      min_size     = 2
+      min_size     = 1
       max_size     = 4
-      desired_size = 4
+      desired_size = 3
     }
 
     sock-shop-nodes-2 = {
       name = "sock-shop-group-2"
 
-      min_size     = 2
+      min_size     = 1
       max_size     = 4
-      desired_size = 4
+      desired_size = 3
     }
   }
 
@@ -49,8 +49,58 @@ module "eks" {
   }
 }
 
-# resource "null_resource" "kubectl" {
-#     provisioner "local-exec" {
-#         command = "aws eks --region eu-north-1 update-kubeconfig --name sock-shop-eks"
-#     }
+resource "null_resource" "initial_setup" {
+  provisioner "local-exec" {
+    command = <<EOT
+      aws eks update-kubeconfig --name sock-shop-eks --region eu-north-1
+    EOT
+  }
+
+  depends_on = [module.eks]
+}
+
+resource "null_resource" "create_namespace" {
+  provisioner "local-exec" {
+    command = <<EOT
+      kubectl get namespace sock-shop || kubectl create namespace sock-shop
+    EOT
+  }
+
+  depends_on = [null_resource.initial_setup]
+}
+
+resource "null_resource" "set_namespace" {
+  provisioner "local-exec" {
+    command = <<EOT
+      kubectl config set-context arn:aws:eks:eu-north-1:533267405341:cluster/sock-shop-eks --namespace=sock-shop
+    EOT
+  }
+
+  # depends_on = [null_resource.create_namespace]
+}
+
+# resource "null_resource" "initial_setup" {
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       aws eks update-kubeconfig --name sock-shop-eks --region eu-north-1
+#       kubectl get namespace sock-shop || kubectl create namespace sock-shop
+#       kubectl config set-context arn:aws:eks:eu-north-1:533267405341:cluster/sock-shop-eks --namespace=sock-shop
+
+#     EOT
+#   }
+
+#   depends_on = [module.eks]
+# }
+
+# resource "null_resource" "initial_setup" {
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       aws eks update-kubeconfig --name sock-shop-eks --region eu-north-1
+#       kubectl get namespace sock-shop || kubectl create namespace sock-shop
+#       kubectl config set-context $(kubectl config current-context) --namespace=sock-shop
+
+#     EOT
+#   }
+
+#   depends_on = [module.eks]
 # }

@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sockshop-cert
+spec:
+  secretName: tls-secret
+  dnsNames:
+    - sockshop.oldyungdev.tech
+    - prometheus.oldyungdev.tech
+    - grafana.oldyungdev.tech
+  issuerRef:
+    name: letsencrypt-issuer
+    kind: ClusterIssuer
