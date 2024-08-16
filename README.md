@@ -200,7 +200,7 @@ With the ingress tying the front-end service to the load balance with a public a
 After Route 53 configurations, sockshop.oldyungdev.tech successfully served the front-end, but on the 80 (http) insecure port. 
 ![frontend_not_secure](./screenshots/frontend_not_secure.png)
 
-#### 2.2 TLS Certificate with Helm
+#### 2.3 TLS Certificate with Helm
 1. Add jetstack helm chart from remote repo
 ```
 helm repo add jetstack https://charts.jetstack.io
@@ -234,3 +234,13 @@ with the above commands I was able to inspect my certificate status, and voila! 
 
 6. Confirm fron-end serving on https (port 445)
 ![front on https](./screenshots/front_end_on_https.png)
+
+#### 2.4 Monitoring Through Helm (Prometheus and Grafana)
+1. Created Monitoring namespace and Installed Prometheus and Grafana in it
+helm install prome-grafana ./k8s/helm-charts/monitoring --namespace monitoring --create-namespace
+
+![prom installed](./screenshots/prome_n_grafana_installed.png)
+
+2. Installed prometheus node-exporters and grafana dash import after ensuring the pods are running...
+helm upgrade prome-grafana ./k8s/helm-charts/monitoring-addons
+![prom pods running](./screenshots/prome_n_grafana_pods_running.png)
